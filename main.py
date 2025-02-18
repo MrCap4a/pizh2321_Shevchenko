@@ -25,6 +25,7 @@ class Speaker:
 
 
 
+
 class Kitty(Speaker):
    """
    Класс Kitty представляет собой подкласс класса Speaker и реализует методы для отслеживания количества ответов "да" и "нет".
@@ -37,8 +38,8 @@ class Kitty(Speaker):
        :param SpeakerName: Имя объекта Kitty.
        """
        super().__init__(SpeakerName)
-       self.__number_yes = 0
-       self.__number_no = 0
+       self.__count_yes = 0
+       self.__count_no = 0
 
    def __getanswer(self):
        """
@@ -46,28 +47,28 @@ class Kitty(Speaker):
 
        :return: Случайный ответ "да" или "нет".
        """
-       if self.__number_no < self.__number_yes:
-           self.__number_no += 1
+       if self.__count_no < self.__count_yes:
+           self.__count_no += 1
            return "meow-meow"
        else:
-           self.__number_yes += 1
+           self.__count_yes += 1
            return "moore-moore"
 
-   def get_number_no(self):
+   def number_no(self):
        """
-       Метод get_number_no возвращает количество ответов "нет".
+       Метод number_no возвращает количество ответов "нет".
 
        :return: Количество ответов "нет".
        """
-       return self.__number_no
+       return self.__count_no
 
-   def get_number_yes(self):
+   def number_yes(self):
        """
-       Метод get_number_yes возвращает количество ответов "да".
+       Метод number_yes возвращает количество ответов "да".
 
        :return: Количество ответов "да".
        """
-       return self.__number_yes
+       return self.__count_yes
 
    def to_answer(self):
        """
@@ -79,10 +80,11 @@ class Kitty(Speaker):
        return answer
 
 
+
 tk = Kitty("MyKitty")
 print(tk.to_answer())
 print(tk.to_answer())
 print(tk.to_answer())
 print(tk.to_answer())
-print(f"{tk.name} says 'yes': {tk.get_number_yes()} times\
- and 'no': {tk.get_number_no()} times.")
+print(f"{tk.name} says 'yes': {tk.number_yes()} times\
+ and 'no': {tk.number_no()} times.")
