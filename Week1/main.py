@@ -1,84 +1,93 @@
 class Speaker:
-   """
-   Класс Speaker представляет собой абстрактный класс, который определяет интерфейс для объектов, которые могут отвечать на вопросы.
-   """
+    """
+    Класс Speaker представляет собой абстрактный класс, который определяет интерфейс для объектов, которые могут отвечать.
+    """
 
-   def __init__(self, SpeakerName):
-       """
-       Инициализирует объект Speaker с заданным именем.
+    def __init__(self, SpeakerName="Default"):
+        """
+        Инициализирует объект Speaker с именем SpeakerName.
+        """
+        self.name = SpeakerName
 
-       :param SpeakerName: Имя объекта Speaker.
-       """
-       self.name = SpeakerName
+    def __getanswer(self):
+        """
+        Метод, который должен быть реализован в подклассах.
+        """
+        raise NotImplementedError("You must implement this method")
 
-   def __getanswer(self):
-       """
-       Метод __getanswer является абстрактным и должен быть реализован в подклассах.
-       """
-       raise NotImplementedError("You must implement this method")
-
-   def answer(self):
-       """
-       Метод answer является абстрактным и должен быть реализован в подклассах.
-       """
-       raise NotImplementedError("You must implement this method")
+    def to_answer(self):
+        """
+        Метод, который должен быть реализован в подклассах.
+        """
+        raise NotImplementedError("You must implement this method")
 
 
+class Counter:
+    """
+    Класс Counter представляет собой счетчик, который может увеличивать значения A и B.
+    """
+
+    def __init__(self, A=0, B=0):
+        """
+        Инициализирует объект Counter со значениями A и B.
+        """
+        self.A_count = A
+        self.B_count = B
+
+    def add_A(self):
+        """
+        Увеличивает значение A на 1.
+        """
+        self.A_count += 1
+
+    def add_B(self):
+        """
+        Увеличивает значение B на 1.
+        """
+        self.B_count += 1
 
 
 class Kitty(Speaker):
-   """
-   Класс Kitty представляет собой подкласс класса Speaker и реализует методы для отслеживания количества ответов "да" и "нет".
-   """
+    """
+    Класс Kitty представляет собой кота, который может отвечать на вопросы.
+    """
 
-   def __init__(self, SpeakerName):
-       """
-       Инициализирует объект Kitty с заданным именем.
+    def __init__(self, SpeakerName):
+        """
+        Инициализирует объект Kitty с именем SpeakerName.
+        """
+        super().__init__(SpeakerName)
+        self.__counter = Counter()
 
-       :param SpeakerName: Имя объекта Kitty.
-       """
-       super().__init__(SpeakerName)
-       self.__count_yes = 0
-       self.__count_no = 0
+    def __getanswer(self):
+        """
+        Возвращает ответ кота на вопрос.
+        """
+        if self.__counter.B_count < self.__counter.A_count:
+            self.__counter.add_B()
+            return "meow-meow"
+        else:
+            self.__counter.add_A()
+            return "moore-moore"
 
-   def __getanswer(self):
-       """
-       Метод __getanswer возвращает случайный ответ "да" или "нет" и увеличивает соответствующий счетчик.
+    def number_no(self):
+        """
+        Возвращает количество ответов "no".
+        """
+        return self.__counter.B_count
 
-       :return: Случайный ответ "да" или "нет".
-       """
-       if self.__count_no < self.__count_yes:
-           self.__count_no += 1
-           return "meow-meow"
-       else:
-           self.__count_yes += 1
-           return "moore-moore"
+    def number_yes(self):
+        """
+        Возвращает количество ответов "yes".
+        """
+        return self.__counter.A_count
 
-   def number_no(self):
-       """
-       Метод number_no возвращает количество ответов "нет".
-
-       :return: Количество ответов "нет".
-       """
-       return self.__count_no
-
-   def number_yes(self):
-       """
-       Метод number_yes возвращает количество ответов "да".
-
-       :return: Количество ответов "да".
-       """
-       return self.__count_yes
-
-   def to_answer(self):
-       """
-       Метод to_answer возвращает случайный ответ "да" или "нет".
-
-       :return: Случайный ответ "да" или "нет".
-       """
-       answer = self.__getanswer()
-       return answer
-
+    def to_answer(self):
+        """
+        Возвращает ответ кота на вопрос.
+        """
+        answer = self.__getanswer()
+        return answer
 
 
 tk = Kitty("MyKitty")
@@ -87,4 +96,4 @@ print(tk.to_answer())
 print(tk.to_answer())
 print(tk.to_answer())
 print(f"{tk.name} says 'yes': {tk.number_yes()} times\
- and 'no': {tk.number_no()} times.")
+and 'no': {tk.number_no()} times.")
