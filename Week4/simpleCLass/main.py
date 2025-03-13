@@ -3,7 +3,7 @@
 #
 # Выполнил: Шевченко Д.А.
 # Группа: Пиж-б-о-23-2
-# E-mail: !!!
+# E-mail: 2212denis@gmail.com
 
 
 from fraction import Fraction
