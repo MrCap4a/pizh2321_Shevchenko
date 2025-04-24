@@ -1,6 +1,7 @@
 ﻿#include "number.h"
 #include <algorithm>
 #include <cstring>
+#include <stdexcept>
 
 uint2022_t from_uint(uint32_t i) {
     uint2022_t result;
@@ -17,7 +18,15 @@ uint2022_t from_string(const char* buff) {
     result.data[0] = 0;
 
     while (*buff >= '0' && *buff <= '9') {
-        result.data[0] = result.data[0] * 10 + (*buff - '0');
+        uint64_t current = result.data[0];
+        current = current * 10 + (*buff - '0');
+
+        // Проверка на переполнение при чтении из строки
+        if (current > UINT32_MAX) {
+            throw std::overflow_error("Number too large for uint32_t during string conversion");
+        }
+
+        result.data[0] = static_cast<uint32_t>(current);
         buff++;
     }
 
@@ -37,6 +46,9 @@ uint2022_t operator+(const uint2022_t& lhs, const uint2022_t& rhs) {
     }
 
     if (carry) {
+        if (result.size >= sizeof(result.data) / sizeof(result.data[0])) {
+            throw std::overflow_error("Overflow in addition");
+        }
         result.data[result.size] = carry;
         result.size++;
     }
@@ -45,6 +57,10 @@ uint2022_t operator+(const uint2022_t& lhs, const uint2022_t& rhs) {
 }
 
 uint2022_t operator-(const uint2022_t& lhs, const uint2022_t& rhs) {
+    if (lhs < rhs) {
+        throw std::underflow_error("Subtraction would result in negative value");
+    }
+
     uint2022_t result;
     memset(result.data, 0, sizeof(result.data));
     result.size = lhs.size;
@@ -54,6 +70,11 @@ uint2022_t operator-(const uint2022_t& lhs, const uint2022_t& rhs) {
         uint64_t diff = (uint64_t)lhs.data[i] - rhs.data[i] - borrow;
         result.data[i] = diff & 0xFFFFFFFF;
         borrow = (diff >> 32) ? 1 : 0;
+    }
+
+    // Уменьшаем размер, если старшие разряды нулевые
+    while (result.size > 1 && result.data[result.size - 1] == 0) {
+        result.size--;
     }
 
     return result;
@@ -72,6 +93,9 @@ uint2022_t operator*(const uint2022_t& lhs, const uint2022_t& rhs) {
             carry = product >> 32;
         }
         if (carry) {
+            if (i + rhs.size >= sizeof(result.data) / sizeof(result.data[0])) {
+                throw std::overflow_error("Overflow in multiplication");
+            }
             result.data[i + rhs.size] += carry;
         }
     }
@@ -88,10 +112,13 @@ uint2022_t operator/(const uint2022_t& lhs, const uint2022_t& rhs) {
         throw std::runtime_error("Division by zero!");
     }
 
-    uint2022_t quotient = from_uint(0);  // Результат
-    uint2022_t remainder = lhs;          // Остаток
+    if (lhs < rhs) {
+        return from_uint(0);
+    }
 
-    // Проверка, что остаток не меньше делителя
+    uint2022_t quotient = from_uint(0);
+    uint2022_t remainder = lhs;
+
     while (!(remainder < rhs)) {
         remainder = remainder - rhs;
         quotient = quotient + from_uint(1);
@@ -101,11 +128,11 @@ uint2022_t operator/(const uint2022_t& lhs, const uint2022_t& rhs) {
 }
 
 bool operator<(const uint2022_t& lhs, const uint2022_t& rhs) {
-	if (lhs.size != rhs.size) return lhs.size < rhs.size;
-	for (int i = lhs.size - 1; i >= 0; i--) {
-		if (lhs.data[i] != rhs.data[i]) return lhs.data[i] < rhs.data[i];
-	}
-	return false;
+    if (lhs.size != rhs.size) return lhs.size < rhs.size;
+    for (int i = lhs.size - 1; i >= 0; i--) {
+        if (lhs.data[i] != rhs.data[i]) return lhs.data[i] < rhs.data[i];
+    }
+    return false;
 }
 
 bool operator==(const uint2022_t& lhs, const uint2022_t& rhs) {
